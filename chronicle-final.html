@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Хроніка Попелу</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0a08;--surface:#130f0b;--panel:#1a1410;
+  --border:#2a1f14;--border2:#3d2d1a;
+  --gold:#c8922a;--gold2:#e8b84b;
+  --red:#c43030;--green:#2d7a2d;
+  --text:#d4c4a8;--muted:#7a6a50;--white:#f0e8d8;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'IM Fell English',serif;}
+
+/* INTRO */
+#intro{height:100vh;overflow-y:auto;padding:20px 16px 40px;display:flex;flex-direction:column;align-items:center;}
+.ititle{font-size:34px;color:var(--gold2);text-align:center;margin:8px 0 4px;letter-spacing:1px;}
+.isub{font-style:italic;color:var(--muted);font-size:12px;text-align:center;margin-bottom:16px;}
+.idiv{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 16px;}
+.clist{width:100%;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.cc{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px;cursor:pointer;transition:border-color .2s;}
+.cc:active,.cc.sel{border-color:var(--gold2);background:rgba(200,146,42,0.07);}
+.ctop{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.cicon{font-size:18px;}
+.cname{font-size:15px;color:var(--gold2);}
+.cdesc{font-size:12px;color:var(--muted);font-style:italic;line-height:1.4;}
+.cst{font-size:11px;color:var(--muted);margin-top:5px;}
+.nlabel{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.ninput{width:100%;background:var(--panel);border:1px solid var(--border2);color:var(--white);font-family:'IM Fell English',serif;font-size:16px;padding:11px;border-radius:6px;outline:none;margin-bottom:14px;}
+.ninput:focus{border-color:var(--gold);}
+.bbegin{width:100%;background:transparent;border:1px solid var(--gold);color:var(--gold2);font-family:'IM Fell English',serif;font-size:16px;padding:13px;cursor:pointer;border-radius:6px;letter-spacing:1px;}
+.bbegin:disabled{opacity:.35;cursor:default;}
+
+/* GAME */
+#game{display:none;flex-direction:column;height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.cleft{display:flex;align-items:center;gap:8px;}
+#av{border:1px solid var(--border2);border-radius:3px;flex-shrink:0;}
+.cname2{font-size:13px;color:var(--gold2);}
+.ccls{font-size:10px;color:var(--muted);font-style:italic;}
+.srow{display:flex;gap:10px;}
+.sb{text-align:center;}
+.sv{font-family:'Courier Prime',monospace;font-size:13px;font-weight:700;}
+.sl{font-size:9px;color:var(--muted);text-transform:uppercase;}
+.shp .sv{color:var(--red);}
+.sgold .sv{color:var(--gold2);}
+.sxp .sv{color:var(--green);}
+
+/* ENTITY PORTRAIT */
+#entity-wrap{display:none;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 12px;flex-direction:row;align-items:center;gap:12px;animation:su .4s ease;}
+#entity-canvas{border:1px solid var(--border2);border-radius:4px;image-rendering:pixelated;flex-shrink:0;}
+.entity-info{flex:1;}
+.entity-name{font-size:15px;color:var(--gold2);margin-bottom:3px;}
+.entity-type{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:6px;}
+.entity-hp-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.entity-hp-fill{height:100%;background:var(--red);border-radius:2px;transition:width .5s;}
+
+.scene{flex-shrink:0;height:90px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+#sc{image-rendering:pixelated;}
+.slbl{position:absolute;bottom:5px;left:10px;font-size:10px;color:var(--muted);font-style:italic;}
+
+.log{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;}
+.log::-webkit-scrollbar{width:3px;}
+.log::-webkit-scrollbar-thumb{background:var(--border2);}
+.mdm{background:var(--panel);border-left:2px solid var(--gold);padding:10px 12px;border-radius:0 4px 4px 0;font-size:14px;line-height:1.7;color:var(--white);animation:su .3s ease;}
+.mpl{border-left:2px solid var(--border2);padding:7px 12px;font-size:13px;color:var(--muted);font-style:italic;animation:su .3s ease;}
+.mroll{display:flex;align-items:center;gap:8px;padding:5px 10px;animation:su .3s ease;}
+.dice{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Courier Prime',monospace;font-weight:700;font-size:12px;flex-shrink:0;border:1px solid;}
+.dc{background:rgba(200,146,42,.2);border-color:var(--gold2);color:var(--gold2);}
+.dg{background:rgba(45,122,45,.2);border-color:var(--green);color:var(--green);}
+.dm2{background:rgba(74,58,40,.3);border-color:#4a3a28;color:var(--text);}
+.db{background:rgba(139,32,32,.2);border-color:var(--red);color:var(--red);}
+.df{background:rgba(80,20,20,.3);border-color:#6b1010;color:#c43030;}
+.ri{font-family:'Courier Prime',monospace;font-size:11px;color:var(--muted);}
+.rl{color:var(--text);font-size:11px;}
+.typ{display:flex;gap:3px;padding:9px 12px;background:var(--panel);border-left:2px solid var(--border);border-radius:0 4px 4px 0;width:fit-content;}
+.td{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:tb 1.2s infinite;}
+.td:nth-child(2){animation-delay:.2s;}.td:nth-child(3){animation-delay:.4s;}
+
+.iarea{padding:9px 12px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+.irow{display:flex;gap:8px;align-items:flex-end;}
+.ainput{flex:1;background:var(--panel);border:1px solid var(--border2);color:var(--white);font-family:'IM Fell English',serif;font-size:14px;padding:9px 11px;border-radius:6px;outline:none;resize:none;min-height:40px;max-height:80px;line-height:1.4;}
+.ainput:focus{border-color:var(--gold);}
+.ainput::placeholder{color:#4a3a28;font-style:italic;}
+.bsend{background:var(--panel);border:1px solid var(--border2);color:var(--gold);font-family:'Courier Prime',monospace;font-size:12px;padding:9px 13px;cursor:pointer;border-radius:6px;white-space:nowrap;flex-shrink:0;letter-spacing:.5px;}
+.bsend:disabled{opacity:.4;}
+
+@keyframes su{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+</style>
+</head>
+<body>
+
+<div id="intro">
+  <div class="ititle">⚔ Хроніка Попелу</div>
+  <div class="isub">Темне фентезі · Живий світ · Твої рішення мають вагу</div>
+  <div class="idiv"></div>
+  <div class="clist">
+    <div class="cc" onclick="pick(this,'Мисливець','Самотній слідопит. Б\'є точно, говорить мало.')">
+      <div class="ctop"><span class="cicon">⚔</span><span class="cname">Мисливець</span></div>
+      <div class="cdesc">Самотній слідопит. Б'є точно, говорить мало. Знає темряву зсередини.</div>
+      <div class="cst">СИЛ ●●○○○ · СПР ●●●●○ · ІНТ ●●●○○</div>
+    </div>
+    <div class="cc" onclick="pick(this,'Стратег','Холодний розум. Маніпулює людьми як фігурами. Перемагає до бою.')">
+      <div class="ctop"><span class="cicon">🧠</span><span class="cname">Стратег</span></div>
+      <div class="cdesc">Холодний розум. Маніпулює людьми як фігурами. Перемагає до бою.</div>
+      <div class="cst">СИЛ ●○○○○ · ІНТ ●●●●● · ХАР ●●●●○</div>
+    </div>
+    <div class="cc" onclick="pick(this,'Відьмак','Між людьми і монстрами. Мутант без ілюзій.')">
+      <div class="ctop"><span class="cicon">🌙</span><span class="cname">Відьмак</span></div>
+      <div class="cdesc">Між людьми і монстрами. Мутант без ілюзій. Є контракти і срібло.</div>
+      <div class="cst">СИЛ ●●●●○ · СПР ●●●○○ · ІНТ ●●●○○</div>
+    </div>
+    <div class="cc" onclick="pick(this,'Тіньовий маг','Сила із забороненого знання. Бачить приховане. Платить ціну.')">
+      <div class="ctop"><span class="cicon">🔮</span><span class="cname">Тіньовий маг</span></div>
+      <div class="cdesc">Сила із забороненого знання. Бачить приховане. Платить ціну.</div>
+      <div class="cst">СИЛ ●○○○○ · ІНТ ●●●●○ · ХАР ●●●○○</div>
+    </div>
+  </div>
+  <label class="nlabel">Ім'я персонажа</label>
+  <input class="ninput" id="nin" type="text" placeholder="Введи ім'я..." maxlength="24">
+  <button class="bbegin" id="bbegin" onclick="begin()" disabled>Увійти у світ →</button>
+</div>
+
+<div id="game">
+  <div class="topbar">
+    <div class="cleft">
+      <canvas id="av" width="30" height="30"></canvas>
+      <div><div class="cname2" id="hname">—</div><div class="ccls" id="hcls">—</div></div>
+    </div>
+    <div class="srow">
+      <div class="sb shp"><div class="sv" id="hhp">100</div><div class="sl">HP</div></div>
+      <div class="sb sgold"><div class="sv" id="hgold">0</div><div class="sl">Зол</div></div>
+      <div class="sb sxp"><div class="sv" id="hxp">0</div><div class="sl">XP</div></div>
+    </div>
+  </div>
+
+  <!-- ENTITY PORTRAIT -->
+  <div id="entity-wrap">
+    <canvas id="entity-canvas" width="72" height="72"></canvas>
+    <div class="entity-info">
+      <div class="entity-name" id="entity-name">—</div>
+      <div class="entity-type" id="entity-type">—</div>
+      <div class="entity-hp-bar"><div class="entity-hp-fill" id="entity-hp-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <div class="scene">
+    <canvas id="sc" width="320" height="82"></canvas>
+    <div class="slbl" id="slbl">ліс</div>
+  </div>
+  <div class="log" id="log"></div>
+  <div class="iarea">
+    <div class="irow">
+      <textarea class="ainput" id="act" placeholder="Що робиш?" rows="1"></textarea>
+      <button class="bsend" id="bsend" onclick="send()">▶ ДІЯ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const S={name:'',cls:'',desc:'',hp:100,maxHp:100,gold:0,xp:0,loc:'ліс',hist:[],busy:false};
+let selCls=null;
+
+function pick(el,name,desc){
+  document.querySelectorAll('.cc').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel'); selCls={name,desc}; chk();
+}
+document.getElementById('nin').addEventListener('input',chk);
+function chk(){
+  const n=document.getElementById('nin').value.trim();
+  document.getElementById('bbegin').disabled=!(n.length>=2&&selCls);
+}
+function begin(){
+  S.name=document.getElementById('nin').value.trim();
+  S.cls=selCls.name; S.desc=selCls.desc;
+  document.getElementById('intro').style.display='none';
+  document.getElementById('game').style.display='flex';
+  document.getElementById('hname').textContent=S.name;
+  document.getElementById('hcls').textContent=S.cls;
+  drawAv(); drawScene('ліс'); startGame();
+}
+
+// ── AVATAR ──
+function drawAv(){
+  const c=document.getElementById('av'),ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  const cols={'Мисливець':'#4a7a4a','Стратег':'#2a2a6a','Відьмак':'#3a3a3a','Тіньовий маг':'#4a1a6a'};
+  const ac={'Мисливець':'#c8922a','Стратег':'#8888cc','Відьмак':'#c0c0c0','Тіньовий маг':'#aa44cc'};
+  ctx.fillStyle='#130f0b'; ctx.fillRect(0,0,30,30);
+  const p=(x,y,w,h,cl)=>{ctx.fillStyle=cl;ctx.fillRect(x,y,w,h);};
+  p(9,2,12,10,'#d4c4a8'); p(9,7,2,5,cols[S.cls]); p(19,7,2,5,cols[S.cls]);
+  p(7,12,16,10,cols[S.cls]); p(13,7,4,3,ac[S.cls]);
+  p(22,4,3,12,ac[S.cls]);
+}
+
+// ── ENTITY PIXEL ART ──
+const ENTITIES = {
+  goblin: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    // body green
+    p(3,5,8,8,'#2d5a1a'); p(2,4,10,2,'#2d5a1a');
+    // head
+    p(3,1,8,5,'#3a7a20');
+    // eyes red
+    p(4,2,2,2,'#cc2020'); p(8,2,2,2,'#cc2020');
+    // ears
+    p(2,2,2,3,'#3a7a20'); p(10,2,2,3,'#3a7a20');
+    // mouth
+    p(4,5,6,1,'#1a0a0a');
+    // teeth
+    p(5,5,1,2,'#e8e0c8'); p(8,5,1,2,'#e8e0c8');
+    // weapon
+    p(11,3,2,10,'#8a7a5a'); p(11,2,2,2,'#c0c0c0');
+    // legs
+    p(3,13,3,4,'#1a3a0a'); p(8,13,3,4,'#1a3a0a');
+  },
+  troll: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    p(2,4,10,10,'#4a6a2a'); p(1,3,12,3,'#4a6a2a');
+    p(3,1,8,4,'#5a7a3a');
+    p(4,2,2,2,'#ff4400'); p(8,2,2,2,'#ff4400');
+    p(1,1,2,4,'#5a7a3a'); p(11,1,2,4,'#5a7a3a');
+    p(5,4,4,1,'#1a0a0a'); p(5,5,1,3,'#e8e0c8'); p(8,5,1,3,'#e8e0c8');
+    p(0,7,2,4,'#4a6a2a'); p(12,7,2,4,'#4a6a2a');
+    p(3,14,3,5,'#2a4a1a'); p(8,14,3,5,'#2a4a1a');
+  },
+  witch: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    // robe
+    p(2,6,10,11,'#2a0a3a'); p(1,10,12,4,'#2a0a3a');
+    // head
+    p(4,2,6,5,'#c8a888');
+    // hat
+    p(3,0,8,3,'#1a0a2a'); p(4,1,6,1,'#2a0a3a'); p(5,0,4,1,'#3a1a4a');
+    // eyes
+    p(5,3,2,1,'#aa44cc'); p(8,3,2,1,'#aa44cc');
+    // staff glow
+    p(12,1,1,16,'#6a3a8a'); p(12,0,2,2,'#cc88ff');
+    // magic particles
+    ctx.fillStyle='rgba(180,100,255,0.6)';
+    [[35,5],[38,9],[33,12]].forEach(([x,y])=>ctx.fillRect(x,y,3,3));
+    p(3,11,3,5,'#1a0a2a'); p(8,11,3,5,'#1a0a2a');
+  },
+  knight: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    // armor
+    p(2,5,10,10,'#707080'); p(1,9,12,3,'#707080');
+    // helmet
+    p(3,1,8,5,'#808090'); p(3,3,8,2,'#606070');
+    // visor slit
+    p(4,3,6,1,'#1a1a2a');
+    // highlights
+    p(3,2,2,1,'#a0a0b0'); p(9,2,2,1,'#a0a0b0');
+    // sword
+    p(13,2,2,14,'#c8c8d8'); p(12,2,4,2,'#a8a0a0');
+    // shield
+    p(0,6,2,6,'#5a3a1a'); p(0,7,2,4,'#8b2020');
+    p(2,14,3,5,'#606070'); p(9,14,3,5,'#606070');
+  },
+  merchant: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    p(3,5,8,10,'#8b4513'); p(2,9,10,3,'#8b4513');
+    p(4,1,6,5,'#d4a870');
+    p(3,0,8,2,'#5a3a10');
+    p(5,3,2,1,'#3a2a10'); p(9,3,2,1,'#3a2a10');
+    p(6,4,2,1,'#c87040');
+    // beard
+    p(4,5,6,3,'#8a7050');
+    // bag
+    p(12,7,3,6,'#8b6533'); p(13,6,2,2,'#6a4a20');
+    ctx.fillStyle='#e8b84b';
+    [[37,22],[40,25],[37,28]].forEach(([x,y])=>ctx.fillRect(x,y,2,2));
+    p(3,15,3,4,'#6a3a0a'); p(8,15,3,4,'#6a3a0a');
+  },
+  dragon: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    p(2,6,12,8,'#6a1a1a'); p(0,8,16,4,'#6a1a1a');
+    p(3,2,8,5,'#8a2020');
+    p(3,0,2,3,'#6a1a1a'); p(9,0,2,3,'#6a1a1a');
+    p(4,3,2,2,'#ff6600'); p(8,3,2,2,'#ff6600');
+    p(5,4,4,1,'#1a0a0a');
+    // wings
+    p(13,3,4,8,'#4a1010'); p(14,2,2,2,'#4a1010');
+    ctx.fillStyle='rgba(255,100,0,0.4)';
+    ctx.fillRect(15,15,12,4);
+    ctx.fillStyle='#ff6600'; ctx.fillRect(15,16,10,2);
+    p(1,10,2,4,'#6a1a1a'); p(13,10,2,4,'#6a1a1a');
+    p(4,14,3,5,'#4a1010'); p(9,14,4,3,'#5a1010');
+    p(13,16,3,2,'#4a1010');
+  },
+  villager: (ctx) => {
+    const p=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*3,y*3,w*3,h*3);};
+    ctx.fillStyle='#0d0a08';ctx.fillRect(0,0,72,72);
+    p(4,5,6,10,'#8b7355');
+    p(4,1,6,5,'#d4a870');
+    p(5,2,2,2,'#3a2a10'); p(9,2,2,1,'#3a2a10');
+    p(6,4,2,1,'#c07050');
+    p(3,0,8,2,'#7a5a30');
+    p(2,8,2,5,'#8b7355'); p(10,8,2,5,'#8b7355');
+    p(4,15,3,4,'#5a4a2a'); p(7,15,3,4,'#5a4a2a');
+  }
+};
+
+function drawEntity(type, name, hpPct) {
+  const wrap = document.getElementById('entity-wrap');
+  const canvas = document.getElementById('entity-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  const key = detectEntityType(type);
+  const drawer = ENTITIES[key] || ENTITIES.villager;
+  drawer(ctx);
+
+  document.getElementById('entity-name').textContent = name;
+  document.getElementById('entity-type').textContent = type;
+  document.getElementById('entity-hp-fill').style.width = (hpPct * 100) + '%';
+
+  const fill = document.getElementById('entity-hp-fill');
+  fill.style.background = hpPct > 0.6 ? '#2d7a2d' : hpPct > 0.3 ? '#c8922a' : '#c43030';
+
+  wrap.style.display = 'flex';
+}
+
+function hideEntity() {
+  document.getElementById('entity-wrap').style.display = 'none';
+}
+
+function detectEntityType(typeStr) {
+  const t = typeStr.toLowerCase();
+  if(t.includes('гоблін')||t.includes('goblin')) return 'goblin';
+  if(t.includes('троль')||t.includes('troll')||t.includes('огр')) return 'troll';
+  if(t.includes('відьм')||t.includes('маг')||t.includes('чаклун')) return 'witch';
+  if(t.includes('лицар')||t.includes('стражник')||t.includes('варта')||t.includes('knight')) return 'knight';
+  if(t.includes('торговець')||t.includes('купець')||t.includes('merchant')) return 'merchant';
+  if(t.includes('дракон')||t.includes('dragon')) return 'dragon';
+  if(t.includes('селян')||t.includes('житель')||t.includes('люди')) return 'villager';
+  return 'villager';
+}
+
+// ── SCENES ──
+function drawScene(loc){
+  const c=document.getElementById('sc'),ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  const W=320,H=82; ctx.clearRect(0,0,W,H);
+  const l=loc.toLowerCase();
+  if(l.includes('печер')||l.includes('підземел')){
+    ctx.fillStyle='#050308';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#1a1020';
+    [[10,0,6,16],[30,0,8,20],[65,0,5,13],[95,0,9,22],[135,0,6,15],[165,0,7,18],[205,0,8,16],[245,0,6,13],[282,0,9,20]].forEach(([x,y,w,h])=>ctx.fillRect(x,y,w,h));
+    ctx.fillStyle='#100a18';ctx.fillRect(0,65,W,H-65);
+    ctx.fillStyle='rgba(200,100,20,0.15)';ctx.beginPath();ctx.arc(40,60,20,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#c86414';ctx.fillRect(38,58,4,7);ctx.fillStyle='#e8a020';ctx.fillRect(39,54,2,5);
+  } else if(l.includes('місто')||l.includes('селищ')||l.includes('вулиц')){
+    ctx.fillStyle='#0a0d18';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#e8e8f0';
+    [[20,5],[55,3],[95,8],[145,4],[195,7],[245,3],[285,6]].forEach(([x,y])=>ctx.fillRect(x,y,1,1));
+    const b=(x,w,h,cl)=>{ctx.fillStyle=cl;ctx.fillRect(x,H-h,w,h);ctx.fillStyle='rgba(200,160,40,0.45)';for(let wy=H-h+4;wy<H-4;wy+=7)for(let wx=x+3;wx<x+w-3;wx+=5)if(Math.random()>0.4)ctx.fillRect(wx,wy,3,3);};
+    b(0,20,45,'#1a1820');b(22,16,34,'#181520');b(40,26,58,'#201828');b(68,18,38,'#1a1820');
+    b(88,22,50,'#181a20');b(112,14,32,'#1a1820');b(128,30,68,'#20182a');
+    b(160,20,44,'#181520');b(182,26,54,'#1a1820');b(210,16,36,'#181520');b(228,28,62,'#20182a');b(258,22,40,'#1a1820');b(282,18,35,'#181520');
+    ctx.fillStyle='#0d0c10';ctx.fillRect(0,H-5,W,5);
+  } else if(l.includes('таверн')||l.includes('корчм')){
+    ctx.fillStyle='#1a1008';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(200,80,10,0.15)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(200,100,20,0.22)';ctx.beginPath();ctx.arc(W/2,H,50,0,Math.PI,true);ctx.fill();
+    for(let y=48;y<H;y+=6){ctx.fillStyle=y%12===0?'#2a1a0a':'#221308';ctx.fillRect(0,y,W,6);}
+    [[18,44,36],[118,54,34],[218,40,36]].forEach(([x,y,w])=>{ctx.fillStyle='#3a2010';ctx.fillRect(x,y,w,5);ctx.fillRect(x+3,y+5,4,12);ctx.fillRect(x+w-7,y+5,4,12);});
+    ctx.fillStyle='#c86414';ctx.fillRect(W/2-6,H-18,12,12);ctx.fillStyle='#e8a020';ctx.fillRect(W/2-4,H-25,8,9);ctx.fillStyle='#f0d040';ctx.fillRect(W/2-2,H-30,4,7);
+  } else {
+    ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,H*0.6);
+    ctx.fillStyle='#e8e0c0';ctx.fillRect(W-16,4,6,6);ctx.fillStyle='#0d1520';ctx.fillRect(W-14,5,4,4);
+    const tr=(x)=>{
+      ctx.fillStyle='#1a3a1a';
+      [[x+4,24],[x+3,24],[x+5,24],[x+2,28],[x+6,28],[x+3,28],[x+5,28],[x+4,28],[x+1,32],[x+7,32],[x+2,32],[x+6,32],[x+3,32],[x+5,32],[x+4,32]].forEach(([px,py])=>{ctx.fillRect(px*2,py,2,2);});
+      ctx.fillStyle='#2d1a0a';ctx.fillRect((x+4)*2,42,4,10);
+    };
+    [0,8,18,28,40,52,62].forEach(x=>tr(x));
+    ctx.fillStyle='#0a1a0a';ctx.fillRect(0,50,W,H-50);
+    ctx.fillStyle='#1a2a1a';for(let i=0;i<W;i+=6)ctx.fillRect(i,50,3,2);
+    ctx.fillStyle='rgba(20,40,30,0.3)';ctx.fillRect(0,44,W,10);
+  }
+  document.getElementById('slbl').textContent=loc;
+}
+
+// ── LOG ──
+function addDM(text){const d=document.createElement('div');d.className='mdm';d.textContent=text;document.getElementById('log').appendChild(d);scrl();}
+function addPl(text){const d=document.createElement('div');d.className='mpl';d.textContent=text;document.getElementById('log').appendChild(d);scrl();}
+function addRoll(roll,action){
+  const cls=roll===20?'dc':roll>=16?'dg':roll>=11?'dm2':roll>=6?'db':'df';
+  const lbl=roll===20?'⚡ Крит!':roll>=16?'✓ Успіх+':roll>=11?'~ Успіх':roll>=6?'✗ Провал':'💀 Крит провал';
+  const d=document.createElement('div');d.className='mroll';
+  d.innerHTML=`<div class="dice ${cls}">${roll}</div><div><div class="rl">${lbl}</div><div class="ri">${action}</div></div>`;
+  document.getElementById('log').appendChild(d);scrl();
+}
+function showTyp(){const d=document.createElement('div');d.className='typ';d.id='typ';d.innerHTML='<div class="td"></div><div class="td"></div><div class="td"></div>';document.getElementById('log').appendChild(d);scrl();}
+function remTyp(){const t=document.getElementById('typ');if(t)t.remove();}
+function scrl(){const l=document.getElementById('log');l.scrollTop=l.scrollHeight;}
+function updHUD(){document.getElementById('hhp').textContent=S.hp;document.getElementById('hgold').textContent=S.gold;document.getElementById('hxp').textContent=S.xp;}
+
+// ── AI ──
+async function callAI(userMsg,roll){
+  const msg=`[d20:${roll}]\nДія: ${userMsg}`;
+  S.hist.push({role:'user',content:msg});
+  const sys=`Ти DM темного фентезі у стилі "Вбивця гоблінів". Баланс дії та філософії.
+Гравець: ${S.name} | ${S.cls} | ${S.desc}
+HP:${S.hp}/${S.maxHp} Золото:${S.gold} XP:${S.xp} Локація:${S.loc}
+
+ПРАВИЛА:
+- 2-4 речення атмосферного наративу. Враховуй d20.
+- Якщо локація змінюється: [ЛОКАЦІЯ: назва]
+- Якщо зустрічаєш ворога або NPC: [ПЕРСОНАЖ: тип|ім'я|hp_відсоток] (наприклад [ПЕРСОНАЖ: гоблін|Ґрак|0.8])
+- Якщо персонаж зник/загинув/пішов: [ПЕРСОНАЖ: none]
+- Якщо HP гравця змінюється: [HP: +N або -N]
+- Якщо золото: [GOLD: +N або -N]
+- Якщо XP: [XP: +N]
+- Тільки українська. Стиль: стриманий, темний.`;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,system:sys,messages:S.hist.slice(-16)})});
+  const data=await r.json();
+  const text=data.content?.map(b=>b.text||'').join('')||'Світ мовчить.';
+  S.hist.push({role:'assistant',content:text});
+  let clean=text;
+
+  const lm=text.match(/\[ЛОКАЦІЯ:\s*([^\]]+)\]/);
+  if(lm){S.loc=lm[1].trim();drawScene(S.loc);clean=clean.replace(lm[0],'');}
+
+  const em=text.match(/\[ПЕРСОНАЖ:\s*([^\]]+)\]/);
+  if(em){
+    const parts=em[1].split('|');
+    if(parts[0].trim()==='none'){hideEntity();}
+    else{const type=parts[0]?.trim()||'';const name=parts[1]?.trim()||'?';const hp=parseFloat(parts[2])||1;drawEntity(type,name,hp);}
+    clean=clean.replace(em[0],'');
+  }
+
+  const hm=text.match(/\[HP:\s*([+-]\d+)\]/);
+  if(hm){S.hp=Math.max(0,Math.min(S.maxHp,S.hp+parseInt(hm[1])));updHUD();clean=clean.replace(hm[0],'');}
+  const gm=text.match(/\[GOLD:\s*([+-]\d+)\]/);
+  if(gm){S.gold=Math.max(0,S.gold+parseInt(gm[1]));updHUD();clean=clean.replace(gm[0],'');}
+  const xm=text.match(/\[XP:\s*\+(\d+)\]/);
+  if(xm){S.xp+=parseInt(xm[1]);updHUD();clean=clean.replace(xm[0],'');}
+
+  return clean.trim();
+}
+
+async function startGame(){
+  S.busy=true;document.getElementById('bsend').disabled=true;
+  showTyp();
+  try{
+    S.hist.push({role:'user',content:`Гравець: ${S.name}, ${S.cls}. Почни — де персонаж, перша ситуація. 3 речення. Якщо є ворог або NPC одразу — додай [ПЕРСОНАЖ: тип|ім'я|hp].`});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:`Ти DM темного фентезі. Українська. Стиль: стриманий, темний, 3 речення. Якщо є ворог: [ПЕРСОНАЖ: тип|ім'я|1.0]`,messages:S.hist.slice(-2)})});
+    const data=await r.json();
+    const text=data.content?.map(b=>b.text||'').join('')||'Темрява оточує тебе.';
+    S.hist.push({role:'assistant',content:text});
+    const lm=text.match(/\[ЛОКАЦІЯ:\s*([^\]]+)\]/);
+    if(lm){S.loc=lm[1].trim();drawScene(S.loc);}
+    const em=text.match(/\[ПЕРСОНАЖ:\s*([^\]]+)\]/);
+    if(em){const parts=em[1].split('|');if(parts[0].trim()!=='none'){drawEntity(parts[0]?.trim(),parts[1]?.trim()||'?',parseFloat(parts[2])||1);}}
+    remTyp();addDM(text.replace(/\[.*?\]/g,'').trim());
+  }catch(e){remTyp();addDM('Темрява оточує тебе. Між деревами мерехтять вогні. Попереду — звук кроків.');}
+  S.busy=false;document.getElementById('bsend').disabled=false;
+  document.getElementById('act').focus();
+}
+
+async function send(){
+  if(S.busy)return;
+  const inp=document.getElementById('act');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';inp.style.height='auto';
+  S.busy=true;document.getElementById('bsend').disabled=true;
+  addPl(text);
+  const roll=Math.floor(Math.random()*20)+1;
+  addRoll(roll,text);
+  showTyp();
+  try{const dm=await callAI(text,roll);remTyp();addDM(dm);}
+  catch(e){remTyp();addDM('Щось порушило тканину моменту...');}
+  S.busy=false;document.getElementById('bsend').disabled=false;
+  inp.focus();
+}
+
+document.getElementById('act').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+document.getElementById('act').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';});
+</script>
+</body>
+</html>
